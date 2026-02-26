@@ -1043,6 +1043,49 @@ Entry     User      Heap      Segment       Size  PrevSize  Unused    Flags
 
 #### km
 
+利用poolused命令枚举出nonpaged pool占用内存最多的tag。
+
+```
+!poolused 2
+```
+
+如果这个tag是自己的驱动程序自定义的，那就比较好查了，可以根据源代码定位。
 
 
-todo...
+
+如果是系统的tag,比如
+
+```
+0: kd> !poolused 2
+unable to get nt!PspSessionIdBitmap
+unable to get nt!MmNonPagedPoolEnd
+........
+ Sorting by NonPaged Pool Consumed
+
+               NonPaged                  Paged
+ Tag     Allocs         Used     Allocs         Used
+
+ Proc    156248    579970176          0            0	Process objects , Binary: nt!ps
+ AleS    158070    547714832          0            0	ALE token info , Binary: tcpip.sys
+ AleE    497149    381811008          0            0	ALE endpoint context , Binary: tcpip.sys
+ MiP2    156230    102486880          0            0	UNKNOWN pooltag 'MiP2', please update pooltag.txt
+ Even    693888     88845568          0            0	Event objects 
+ AleP    155814     84748144          0            0	ALE process image path , Binary: tcpip.sys
+ MFE0    422194     50086096          0            0	UNKNOWN pooltag 'MFE0', please update pooltag.txt
+ _LFK     42505     48965760          0            0	UNKNOWN pooltag '_LFK', please update pooltag.txt
+```
+
+Proc对象怎么这么多呢。而且这种ale token info占了547M。这种一般是调用系统API，API内部分配的内存，然后调用者没有释放，这种比较难查。根本不知道是哪个驱动搞的。
+
+
+
+
+
+
+
+
+
+
+
+
+
